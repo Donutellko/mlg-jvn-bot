@@ -7,4 +7,6 @@ class Activity:
         self.paid = paid
 
     def __str__(self):
-        return f"{self.date}: {self.description}, tiene {self.free_places} plazas, pago={self.paid}"
+        plazas = f"Hay {self.free_places} plazas. " if self.free_places > 0 else "No hay plazas. "
+        pago = "Hay que pagar. " if self.paid else ""
+        return f"{self.date}: {self.description}\n{plazas}{pago}"

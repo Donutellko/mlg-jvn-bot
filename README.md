@@ -6,7 +6,7 @@
 echo "YOUR_TOKEN_FROM_BotFather" > token.txt 
 
 python3 -m venv ./venv
-pip install -r requirements.txt
+./venv/bin/pip install -r requirements.txt
 
 ./venv/bin/python mlg_jvn_bot.py
 ```
@@ -17,8 +17,8 @@ pip install -r requirements.txt
 Create file `/etc/systemd/system/my_mlg_jvn_bot.service` with the following content (change `<path_to>`):
 ```
 [Service]
-WorkingDirectory=/home/user/<path_to>/tgtg-bot/
-ExecStart=/home/user/<path_to>/tgtg-bot/venv/bin/python mlg_jvn_bot.py
+WorkingDirectory=/home/<user>/<path_to>/mlg-jvn-bot/
+ExecStart=/home/<user>/<path_to>/mlg-jvn-bot/venv/bin/python mlg_jvn_bot.py
 
 User=root
 

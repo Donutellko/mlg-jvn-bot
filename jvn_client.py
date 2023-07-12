@@ -24,13 +24,16 @@ COLUMN_PAID = 7
 COLUMN_ACTIONS = 8
 
 
-def get_activities() -> [Activity]:
+def get_activities(all: bool) -> [Activity]:
     dom = get_occupation_dom()
     activities_table = dom.select_one('div#content > table')
     activities_rows = activities_table.find_all('tr')[1:]
-    activiies = [parse_row(activity_row) for activity_row in activities_rows]
-    print(f"Parsed {len(activiies)} activities")
-    return activiies
+    activities = [parse_row(activity_row) for activity_row in activities_rows]
+    if not all:
+        activities = [a for a in activities if a.free_places > 0]
+
+    print(f"Parsed {len(activities)} activities")
+    return activities
 
 
 def parse_row(row: Tag):
