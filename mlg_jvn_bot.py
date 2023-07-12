@@ -15,8 +15,9 @@ import logging
 
 from telegram import __version__ as TG_VER, BotCommand
 
-from commands import command_help, error_handler
+from commands import command_help, error_handler, command_list
 from commands.command_help import help_command
+from commands.command_list import list_command
 
 try:
     from telegram import __version_info__
@@ -67,11 +68,14 @@ def main() -> None:
     application = Application.builder().token(token).persistence(persistence).build()
 
     # on different commands - answer in Telegram
-    application.add_handler(CommandHandler(command_help.COMMAND_START, help_command))
-    application.add_handler(CommandHandler(command_help.COMMAND_HELP, help_command))
+    application.add_handler(CommandHandler(command_help.COMMAND_START, command_help.help_command))
+    application.add_handler(CommandHandler(command_help.COMMAND_HELP, command_help.help_command))
+
+    application.add_handler(CommandHandler(command_list.COMMAND_LIST, command_list.list_command))
 
     command = [
         BotCommand(command_help.COMMAND_HELP, "See explanations"),
+        BotCommand(command_list.COMMAND_LIST, "Get list"),
     ]
     asyncio.ensure_future(application.bot.set_my_commands(command))
 
