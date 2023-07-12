@@ -16,8 +16,6 @@ import logging
 from telegram import __version__ as TG_VER, BotCommand
 
 from commands import command_help, error_handler, command_list
-from commands.command_help import help_command
-from commands.command_list import list_all_command
 
 try:
     from telegram import __version_info__
@@ -34,7 +32,6 @@ from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
-    CallbackQueryHandler,
     ContextTypes,
     MessageHandler,
     filters,
@@ -73,11 +70,13 @@ def main() -> None:
 
     application.add_handler(CommandHandler(command_list.COMMAND_LIST_ALL, command_list.list_all_command))
     application.add_handler(CommandHandler(command_list.COMMAND_LIST_AVAILABLE, command_list.list_available_command))
+    application.add_handler(CommandHandler(command_list.COMMAND_LIST_ONCOMING, command_list.list_oncoming_command))
 
     command = [
         BotCommand(command_help.COMMAND_HELP, "See explanations"),
         BotCommand(command_list.COMMAND_LIST_ALL, "List all activities"),
         BotCommand(command_list.COMMAND_LIST_AVAILABLE, "List available activities"),
+        BotCommand(command_list.COMMAND_LIST_ONCOMING, "List oncoming activities"),
     ]
     asyncio.ensure_future(application.bot.set_my_commands(command))
 

@@ -1,14 +1,12 @@
-from xml.dom.minidom import parseString
-from html.parser import HTMLParser
-from bs4 import BeautifulSoup, PageElement, Tag
-
 import requests
+from bs4 import BeautifulSoup, Tag
 
-from client_helper import Activity
+from clients.gestion_client_helper import Activity
 
-site_name = "\u0061\u0070\u0070\u0073\u002e\u006d\u0061\u006c\u0061\u0067\u0061\u002e\u0065\u0075"
+site_name = "\u006d\u0061\u006c\u0061\u0067\u0061\u002e\u0065\u0075"
 
-URL_OCCUPATION = f"https://{site_name}/inter/gca/edicion_ts/ayuda/ocupacion"
+URL_OCCUPATION = f"https://apps.{site_name}/inter/gca/edicion_ts/ayuda/ocupacion"
+URL_ONCOMING = f"https://juventud.{site_name}/es/actividades-y-programas-00001/listado-actividades/"
 
 COMMON_HEADERS = {}
 COLUMNS = {
@@ -17,10 +15,13 @@ COLUMNS = {
     'F.I.Edicion', 'Pago', 'Acciones'  # 6 7 8
 }
 
-COLUMN_DESCRIPTION = 1
-COLUMN_FREE_PLACES = 3
-COLUMN_DATE = 6
-COLUMN_PAID = 7
+COLUMN_DESCRIPCION = 1
+COLUMN_FECHAS_INSCRIPCION = 2
+COLUMN_PLAZAS_LIBRES = 3
+COLUMN_RESERVAS = 4
+COLUMN_EDAD = 5
+COLUMN_FECHA_REALIZACION = 6
+COLUMN_PAGO = 7
 COLUMN_ACTIONS = 8
 
 
@@ -30,7 +31,7 @@ def get_activities(all: bool) -> [Activity]:
     activities_rows = activities_table.find_all('tr')[1:]
     activities = [parse_row(activity_row) for activity_row in activities_rows]
     if not all:
-        activities = [a for a in activities if a.free_places > 0]
+        activities = [a for a in activities if a.plazas_libres > 0]
 
     print(f"Parsed {len(activities)} activities")
     return activities
@@ -39,10 +40,12 @@ def get_activities(all: bool) -> [Activity]:
 def parse_row(row: Tag):
     columns = row.find_all('td')
     return Activity(
-        description=columns[COLUMN_DESCRIPTION].text,
-        date=columns[COLUMN_DATE].text,
-        free_places=int(columns[COLUMN_FREE_PLACES].text),
-        paid=columns[COLUMN_PAID].text == 'Y',
+        descripcion=columns[COLUMN_DESCRIPCION].text,
+        fecha=columns[COLUMN_FECHA_REALIZACION].text,
+        fechas_inscripcion=columns[COLUMN_FECHAS_INSCRIPCION].text,
+        plazas_libres=int(columns[COLUMN_PLAZAS_LIBRES].text),
+        pago=columns[COLUMN_PAGO].text == 'Y',
+        edades=columns[COLUMN_EDAD].text,
     )
 
 
@@ -54,7 +57,7 @@ def get_occupation_dom() -> BeautifulSoup:
 
 
 if __name__ == "__main__":
-    activities = get_activities()
+    activities = get_activities(all=True)
     print("Next activities: " + '\n'.join([str(a) for a in activities]))
 
     print("end")
