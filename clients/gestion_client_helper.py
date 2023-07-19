@@ -1,6 +1,7 @@
 
 class Activity:
-    def __init__(self, descripcion: str,
+    def __init__(self, codigo: str,
+                 descripcion: str,
                  fecha: str,
                  fechas_inscripcion: str,
                  plazas_libres: int,
@@ -8,6 +9,7 @@ class Activity:
                  edades: str,
                  programa: str = "Alterna en tu Ocio",
                  ):
+        self.codigo = codigo
         self.descripcion = descripcion
         self.programa = programa
         self.fecha = fecha
@@ -25,3 +27,6 @@ class Activity:
         str_inscripcion = f"Inicio Inscripción: {self.fechas_inscripcion}"
         return f"{self.fecha}: {self.descripcion}\n{str_inscripcion}\n"
 
+
+def to_dict(activities: [Activity]):
+    return None

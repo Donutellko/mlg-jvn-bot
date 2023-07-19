@@ -15,6 +15,7 @@ COLUMNS = {
     'F.I.Edicion', 'Pago', 'Acciones'  # 6 7 8
 }
 
+COLUMN_CODIGO = 0
 COLUMN_DESCRIPCION = 1
 COLUMN_FECHAS_INSCRIPCION = 2
 COLUMN_PLAZAS_LIBRES = 3
@@ -40,6 +41,7 @@ def get_activities(all: bool) -> [Activity]:
 def parse_row(row: Tag):
     columns = row.find_all('td')
     return Activity(
+        codigo=columns[COLUMN_CODIGO].text,
         descripcion=columns[COLUMN_DESCRIPCION].text,
         fecha=columns[COLUMN_FECHA_REALIZACION].text,
         fechas_inscripcion=columns[COLUMN_FECHAS_INSCRIPCION].text,
