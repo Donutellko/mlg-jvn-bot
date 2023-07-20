@@ -7,6 +7,7 @@ from telegram.ext import ContextTypes
 import user_data_helper
 from clients import gestion_client
 from clients.gestion_client_helper import Activity
+from commands.command_list import get_gestion_link
 
 COMMAND_FORCE_SCHEDULER = "force_scheduler"
 logger = logging.getLogger('subscription_handler')
@@ -14,6 +15,7 @@ logger = logging.getLogger('subscription_handler')
 
 async def force_scheduler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
+    Triggered with /force_scheduler
     """
     user_id = update.effective_user.id
     new_appearances = await job_check_updates(context, user_id)
@@ -53,9 +55,9 @@ async def job_check_updates_subscription(context: ContextTypes.DEFAULT_TYPE, use
     user_data_helper.subscriptions(context.user_data, [subscription])
 
     if len(response) > 0:
-        logger.info(f"Found some updates: ")
+        logger.info(f"Found some updates: {response}")
 
-        response = f"Found some updates: \n\n{response}\n\nGestion: {gestion_client.URL_OCCUPATION}"
+        response = f"Found some updates: \n\n{response}\n\n{get_gestion_link()}"
         await context.bot.send_message(chat_id=user_id, text=response,
                                        parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
     else:
@@ -80,8 +82,8 @@ def find_new_appearances(actual_items: [Activity], previous_items: [Activity]) -
 
     new_appearances = []
     for item in actual_items:
-        prev = previous_dict.get(item.codigo, {})
-        if get_items_available(item) > get_items_available(prev):
+        prev = previous_dict.get(item.codigo)
+        if prev is None or get_items_available(item) > get_items_available(prev):
             new_appearances.append(item)
 
     return new_appearances

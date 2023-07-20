@@ -38,6 +38,7 @@ def get_oncoming(all: bool = False) -> [Activity]:
 def parse_row(row: Tag):
     columns = row.find_all('td')
     return Activity(
+        codigo=None,
         descripcion=columns[COLUMN_NOMBRE].text,
         fecha=columns[COLUMN_FECHA_REALIZACION].text,
         fechas_inscripcion=columns[COLUMN_FECHA_INSCRIPCION].text,

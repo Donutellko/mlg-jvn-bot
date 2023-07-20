@@ -1,4 +1,5 @@
 from telegram import Update
+from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from clients import gestion_client, programas_client
@@ -13,9 +14,10 @@ async def list_all_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     activities = gestion_client.get_activities(all=True)
     activities_text = '\n\n'.join([str(a) for a in activities])
-    reply_text = f"Actividades: \n{activities_text}\nGestion: {gestion_client.URL_OCCUPATION}"
+    reply_text = f"Actividades: \n{activities_text}\n\n{get_gestion_link()}"
 
-    await update.message.reply_text(reply_text)
+    await update.message.reply_text(text=reply_text,
+                                    parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
 
 async def list_available_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -23,9 +25,10 @@ async def list_available_command(update: Update, context: ContextTypes.DEFAULT_T
 
     activities = gestion_client.get_activities(all=False)
     activities_text = '\n\n'.join([str(a) for a in activities])
-    reply_text = f"Actividades con plazas: \n{activities_text}\nGestion: {gestion_client.URL_OCCUPATION}"
+    reply_text = f"Actividades con plazas: \n{activities_text}\n\n{get_gestion_link()}"
 
-    await update.message.reply_text(reply_text)
+    await update.message.reply_text(text=reply_text,
+                                    parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
 
 async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -35,5 +38,10 @@ async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TY
     activities_text = '\n\n'.join([a.str_oncoming() for a in activities])
     reply_text = f"Actividades desponibles: \n{activities_text}\nLista: {programas_client.URL_ONCOMING}"
 
-    await update.message.reply_text(reply_text)
+    await update.message.reply_text(text=reply_text,
+                                    parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
+
+
+def get_gestion_link():
+    return f"[\\> Gestion \\<]({gestion_client.URL_OCCUPATION})"
 

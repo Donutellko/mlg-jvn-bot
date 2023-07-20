@@ -7,7 +7,6 @@ import user_data_helper
 from commands import subscription_handler
 
 SCHEDULER_INTERVAL = 300 # seconds
-COMMAND_FORCE_SCHEDULER = "force_scheduler"
 logger = logging.getLogger('subscription_handler_starter')
 
 

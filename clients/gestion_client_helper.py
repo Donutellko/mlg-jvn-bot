@@ -1,3 +1,5 @@
+import re
+
 
 class Activity:
     def __init__(self, codigo: str,
@@ -21,12 +23,19 @@ class Activity:
     def __str__(self):
         str_plazas = f"Hay {self.plazas_libres} plazas. " if self.plazas_libres > 0 else "No hay plazas. "
         str_pago = "Hay que pagar. " if self.pago else ""
-        return f"{self.fecha}: {self.descripcion}\n{str_plazas}{str_pago}"
+        return escape_chars(f"{self.fecha}: {self.descripcion}\n{str_plazas}{str_pago}")
 
     def str_oncoming(self):
         str_inscripcion = f"Inicio Inscripción: {self.fechas_inscripcion}"
-        return f"{self.fecha}: {self.descripcion}\n{str_inscripcion}\n"
+        return escape_chars(f"{self.fecha}: {self.descripcion}\n{str_inscripcion}\n")
 
 
-def to_dict(activities: [Activity]):
-    return None
+def escape_chars(s: str) -> str:
+    # for markdown parser, chars _*\[]\)\(~`>#+-=|{}.!']) should be prepended with \
+    return re.sub(r"([-_*\[\])(~`>#+=|{}.!'])", r"\\\1", s)
+
+
+if __name__ == "__main__":
+    print(escape_chars("abcABC123.,![]()"))
+
+    print("end")

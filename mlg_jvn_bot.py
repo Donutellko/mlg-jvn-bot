@@ -15,7 +15,8 @@ import logging
 
 from telegram import __version__ as TG_VER, BotCommand
 
-from commands import command_help, error_handler, command_list, command_subscribe, subscription_handler_starter
+from commands import command_help, error_handler, command_list, command_subscribe, subscription_handler_starter, \
+    subscription_handler
 
 try:
     from telegram import __version_info__
@@ -74,6 +75,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler(command_subscribe.COMMAND_SUBSCRIBE, command_subscribe.subscribe_command))
     application.add_handler(CommandHandler(command_subscribe.COMMAND_UNSUBSCRIBE, command_subscribe.unsubscribe_command))
+    application.add_handler(CommandHandler(subscription_handler.COMMAND_FORCE_SCHEDULER, subscription_handler.force_scheduler))
 
     command = [
         BotCommand(command_help.COMMAND_HELP, "See explanations"),
