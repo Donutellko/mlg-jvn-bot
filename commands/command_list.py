@@ -12,9 +12,16 @@ COMMAND_LIST_ONCOMING = "oncoming"
 async def list_all_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /list_all is issued."""
 
-    activities = gestion_client.get_activities(all=True)
+    activities = gestion_client.get_activities(all=True, page=1)
     activities_text = '\n\n'.join([str(a) for a in activities])
     reply_text = f"Actividades: \n{activities_text}\n\n{get_gestion_link()}"
+
+    await update.message.reply_text(text=reply_text,
+                                    parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
+
+    activities = gestion_client.get_activities(all=True, page=2)
+    activities_text = '\n\n'.join([str(a) for a in activities])
+    reply_text = f"Page 2: \n{activities_text}\n\n{get_gestion_link()}"
 
     await update.message.reply_text(text=reply_text,
                                     parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
@@ -23,9 +30,16 @@ async def list_all_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 async def list_available_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /list is issued."""
 
-    activities = gestion_client.get_activities(all=False)
+    activities = gestion_client.get_activities(all=False, page=1)
     activities_text = '\n\n'.join([str(a) for a in activities])
     reply_text = f"Actividades con plazas: \n{activities_text}\n\n{get_gestion_link()}"
+
+    await update.message.reply_text(text=reply_text,
+                                    parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
+
+    activities = gestion_client.get_activities(all=False, page=2)
+    activities_text = '\n\n'.join([str(a) for a in activities])
+    reply_text = f"Page 2: \n{activities_text}\n\n{get_gestion_link()}"
 
     await update.message.reply_text(text=reply_text,
                                     parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)

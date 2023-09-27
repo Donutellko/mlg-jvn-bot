@@ -26,8 +26,8 @@ COLUMN_PAGO = 7
 COLUMN_ACTIONS = 8
 
 
-def get_activities(all: bool) -> [Activity]:
-    dom = get_occupation_dom()
+def get_activities(all: bool, page: int = 1) -> [Activity]:
+    dom = get_occupation_dom(page)
     activities_table = dom.select_one('div#content > table')
     activities_rows = activities_table.find_all('tr')[1:]
     activities = [parse_row(activity_row) for activity_row in activities_rows]
@@ -51,8 +51,12 @@ def parse_row(row: Tag):
     )
 
 
-def get_occupation_dom() -> BeautifulSoup:
-    response = requests.request("GET", URL_OCCUPATION, headers=COMMON_HEADERS)
+def get_occupation_dom(page: int) -> BeautifulSoup:
+    payload = f"data[EdicionT][nav_page]={page}"
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    headers.update(COMMON_HEADERS)
+    response = requests.request("POST", URL_OCCUPATION, headers=headers,
+                                data=payload)
     html_doc = response.text
     print(f"Get /ocupacion, code {response.status_code}, length: {len(html_doc)}, lasted {response.elapsed}")
     return BeautifulSoup(html_doc, 'html.parser')

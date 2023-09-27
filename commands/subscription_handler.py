@@ -45,7 +45,7 @@ async def job_check_updates(context: ContextTypes.DEFAULT_TYPE, user_id: int) ->
 
 async def job_check_updates_subscription(context: ContextTypes.DEFAULT_TYPE, user_id: int, subscription: dict):
     previous_items = subscription[user_data_helper.LAST_SAVED_PLAZAS_KEY]
-    actual_items = gestion_client.get_activities(all=False)
+    actual_items = gestion_client.get_activities(all=False, page=2)
 
     new_appearances = find_new_appearances(actual_items, previous_items)
 
