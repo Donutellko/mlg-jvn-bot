@@ -36,12 +36,20 @@ async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TY
 
     activities = programas_client.get_oncoming(all=False)
     activities_text = '\n\n'.join([a.str_oncoming() for a in activities])
-    reply_text = f"Actividades desponibles: \n{activities_text}\nLista: {programas_client.URL_ONCOMING}"
+    reply_text = f"Actividades desponibles: \n{activities_text}\n{get_oncoming_link()}"
 
     await update.message.reply_text(text=reply_text,
                                     parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
 
-def get_gestion_link():
-    return f"[\\> Gestion \\<]({gestion_client.URL_OCCUPATION})"
+def get_gestion_link() -> str:
+    return get_markdown_link("\\> Gestion \\<", gestion_client.URL_OCCUPATION)
+
+
+def get_oncoming_link() -> str:
+    return get_markdown_link("\\> Listado \\<", gestion_client.URL_ONCOMING)
+
+
+def get_markdown_link(text: str, url: str) -> str:
+    return f"[{text}]({url})"
 
