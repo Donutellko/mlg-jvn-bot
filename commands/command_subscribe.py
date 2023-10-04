@@ -15,13 +15,13 @@ async def subscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     user_data = context.user_data
     user_id = update.effective_user.id
 
-    actual_activities = gestion_client.get_activities(all=False, page=2)
+    actual_activities = gestion_client.get_activities(all=False, page=1)
     user_data_helper.add_subscription(user_data, actual_activities)
 
     subscription_handler_starter.schedule_for_user(context.application.job_queue, user_id=user_id)
 
     await update.message.reply_text("""
-    TEMPORARILY ONLY SECOND PAGE
+    FOR NOW ONLY FIRST PAGE
     You have subscribed for updates in your list of favorites, expect some updates now and then.
     """)
 
