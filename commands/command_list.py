@@ -34,9 +34,25 @@ async def list_available_command(update: Update, context: ContextTypes.DEFAULT_T
 async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /oncoming is issued."""
 
-    activities = programas_client.get_oncoming(all=False)
-    activities_text = '\n\n'.join([a.str_oncoming() for a in activities])
-    reply_text = f"Actividades desponibles: \n{activities_text}\n{get_oncoming_link()}"
+    results = programas_client.get_oncoming(all=False)
+    reply_parts = []
+
+    for result in results:
+        if result['error']:
+            reply_parts.append(f"*{result['name']}*: Error - {result['error']}")
+        else:
+            if result['entries']:
+                activities_text = '\n'.join([a.str_oncoming() for a in result['entries']])
+                reply_parts.append(f"*{result['name']}* ({len(result['entries'])} actividades):\n{activities_text}")
+                # Add link to the source
+                reply_parts.append(get_markdown_link("\\> Ver más \\<", result['url']))
+            else:
+                reply_parts.append(f"*{result['name']}*: No hay actividades disponibles")
+
+    if reply_parts:
+        reply_text = '\n\n'.join(reply_parts)
+    else:
+        reply_text = "No se encontraron actividades disponibles."
 
     await update.message.reply_text(text=reply_text,
                                     parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
@@ -52,4 +68,3 @@ def get_oncoming_link() -> str:
 
 def get_markdown_link(text: str, url: str) -> str:
     return f"[{text}]({url})"
-
