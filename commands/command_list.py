@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
 
 from clients import gestion_client, programas_client
+from clients.gestion_client_helper import escape_chars
 
 COMMAND_LIST_ALL = "list_all"
 COMMAND_LIST_AVAILABLE = "list"
@@ -52,7 +53,7 @@ async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TY
                                    f"\\({len(result['entries'])} actividades\\):"
                                    f"\n{activities_text}")
                 # Add link to the source
-                reply_parts.append(get_markdown_link("\\> Ver más \\<", result['url']))
+                reply_parts.append(get_markdown_link("> Ver más <", result['url']))
             else:
                 reply_parts.append(f"*{name}*: No hay actividades disponibles")
 
@@ -61,23 +62,28 @@ async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TY
         else:
             reply_text = "No se encontraron actividades disponibles."
 
-        if (len(reply_text) > MESSAGE_LENGTH_LIMIT):
-            suffix = "\n\n*Mensaje truncado, demasiadas actividades\\."
-            reply_text = reply_text[:MESSAGE_LENGTH_LIMIT - len(suffix) - 1] + suffix
-
         context.user_data["last_response"] = reply_text
-        await update.message.reply_text(text=reply_text,
+        try:
+            await update.message.reply_text(text=reply_text,
                                         parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
+        except Exception as e:
+            # If the message is too long, we truncate it and send a warning
+            if "message is too long" in str(e):
+                suffix = "\n\n*Mensaje truncado, demasiadas actividades\\."
+                truncated_reply = reply_text[:MESSAGE_LENGTH_LIMIT - len(suffix) - 1] + suffix
+                await update.message.reply_text(text=truncated_reply, disable_web_page_preview=True)
+            else:
+                raise e
 
 
 def get_gestion_link() -> str:
-    return get_markdown_link("\\> Gestion \\<", gestion_client.URL_OCCUPATION)
+    return get_markdown_link("> Gestion <", gestion_client.URL_OCCUPATION)
 
 
 def get_oncoming_link() -> str:
-    return get_markdown_link("\\> Listado \\<", gestion_client.URL_ONCOMING)
+    return get_markdown_link("> Listado <", gestion_client.URL_ONCOMING)
 
 
 def get_markdown_link(text: str, url: str) -> str:
-    text = escape_markdown(text)
+    text = escape_chars(text)
     return f"[{text}]({url})"

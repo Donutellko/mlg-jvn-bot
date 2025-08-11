@@ -11,9 +11,29 @@ site_name = "\u006d\u0061\u006c\u0061\u0067\u0061\u002e\u0065\u0075"
 
 URL_LISTADO = f"https://juventud.{site_name}/es/actividades-y-programas-00001/listado-actividades/"
 URLS = {
-    'BIJ': f"https://juventud.{site_name}/es/actividades-y-programas-00001/banco-de-iniciativas-juveniles/talleres-bij-banco-de-iniciativas-juveniles/index.html",
-    'Alterna en tu Ocio': f"https://juventud.malaga.eu/es/actividades-y-programas-00001/ocio/alterna-en-tu-ocio/#!tab2",
-    'Jovenes y Naturaleza': f"https://juventud.{site_name}/es/actividades-y-programas-00001/ocio/jovenesynaturaleza/#!tab2",
+    'BIJ': {
+        'url': f"https://juventud.{site_name}/es/actividades-y-programas-00001/banco-de-iniciativas-juveniles/talleres-bij-banco-de-iniciativas-juveniles/index.html",
+        'column_nombre': 0,
+        'column_fecha_realizacion': 1,
+        'column_fecha_inscripcion': 2,
+        'column_plazas': 3,
+        'column_lugar': 4,
+        'column_hour': 5,
+    },
+    'Alterna en tu Ocio': {
+        'url': f"https://juventud.malaga.eu/es/actividades-y-programas-00001/ocio/alterna-en-tu-ocio/#!tab2",
+        'column_nombre': 0,
+        'column_fecha_inscripcion': 1,
+        'column_fecha_realizacion': 2,
+        'column_edad': 3,
+    },
+    'Jovenes y Naturaleza': {
+        'url': f"https://juventud.{site_name}/es/actividades-y-programas-00001/ocio/jovenesynaturaleza/#!tab2",
+        'column_nombre': 0,
+        'column_fecha_inscripcion': 1,
+        'column_fecha_realizacion': 2,
+        'column_plazas': 3,
+    },
 }
 
 COMMON_HEADERS = {}
@@ -21,13 +41,6 @@ COLUMNS = {
     'Nombre', 'Programa', 'Fecha Inicio Inscripción',  # 0 1 2
     'Fecha Inicio Realización', 'Edades', 'Consulta plazas disponibles o inscríbete *'  # 3 4 5
 }
-
-COLUMN_NOMBRE = 0
-COLUMN_PROGRAMA = 1
-COLUMN_FECHA_INSCRIPCION = 2
-COLUMN_FECHA_REALIZACION = 3
-COLUMN_EDAD = 4
-
 
 def get_oncoming(all: bool = False) -> List[Dict[str, Any]]:
     """
@@ -43,7 +56,9 @@ def get_oncoming(all: bool = False) -> List[Dict[str, Any]]:
     current_date = date.today()
 
     # Process each URL in URLS dictionary
-    for name, url in URLS.items():
+    for name, parse_details in URLS.items():
+        url = parse_details['url']
+
         result = {
             'name': name,
             'error': None,
@@ -56,7 +71,7 @@ def get_oncoming(all: bool = False) -> List[Dict[str, Any]]:
             activities_table = dom.select_one('table')
             if activities_table:
                 activities_rows = activities_table.find_all('tr')[1:]
-                activities = [parse_row(activity_row) for activity_row in activities_rows]
+                activities = [parse_row(activity_row, parse_details) for activity_row in activities_rows]
                 if not all:
                     # Filter activities with valid inscription dates that are not in the past
                     activities = [a for a in activities if a.fecha is not None and
@@ -159,18 +174,33 @@ def get_month_number(month_name: str) -> int:
     return months.get(month_name, 1)  # Default to January if not found
 
 
-def parse_row(row: Tag) -> Activity:
+def parse_row(row: Tag, parse_details: dict) -> Activity:
     columns = row.find_all('td')
+    fecha = get_column_text(columns, parse_details, 'column_fecha_realizacion')
+    hora = get_column_text(columns, parse_details, 'column_hora_realizacion')
+    if hora:
+        fecha = f"{fecha} {hora}"
+
     return Activity(
         codigo=None,
-        descripcion=columns[COLUMN_NOMBRE].text,
-        fecha=columns[COLUMN_FECHA_REALIZACION].text,
-        fechas_inscripcion=columns[COLUMN_FECHA_INSCRIPCION].text,
-        plazas_libres=-1,
+        descripcion=get_column_text(columns, parse_details, 'column_nombre'),
+        fecha=fecha,
+        fechas_inscripcion=get_column_text(columns, parse_details, 'column_fecha_inscripcion'),
+        plazas_libres=get_column_text(columns, parse_details, 'column_plazas'),
         pago=None,
-        edades=columns[COLUMN_EDAD].text,
-        programa=columns[COLUMN_PROGRAMA].text,
+        edades=get_column_text(columns, parse_details, 'COLUMN_EDAD'),
+        programa=get_column_text(columns, parse_details, 'COLUMN_PROGRAMA'),
     )
+
+def get_column_text(columns, parse_details, name):
+    if name not in parse_details:
+        return None
+
+    column_index = parse_details[name]
+    if column_index >= len(columns):
+        return None
+
+    return columns[column_index].text.strip()
 
 
 def get_dom(url: str) -> BeautifulSoup:

@@ -26,7 +26,7 @@ class Activity:
         return escape_chars(f"{self.fecha}: {self.descripcion}\n{str_plazas}{str_pago}")
 
     def str_oncoming(self):
-        str_inscripcion = f"Inicio Inscripción: {self.fechas_inscripcion}"
+        str_inscripcion = f"Inscripción: {self.fechas_inscripcion}"
         return escape_chars(f"{self.fecha}: {self.descripcion}\n{str_inscripcion}\n")
 
 
