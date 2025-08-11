@@ -25,7 +25,7 @@ def get_oncoming(all: bool = False) -> [Activity]:
     """all - if should include past events and Mobility programs, not supported yet"""
 
     dom = get_oncoming_dom()
-    activities_table = dom.select_one('table#example')
+    activities_table = dom.select_one('table')
     activities_rows = activities_table.find_all('tr')[1:]
     activities = [parse_row(activity_row) for activity_row in activities_rows]
     if not all:
@@ -45,7 +45,7 @@ def parse_row(row: Tag):
         plazas_libres=0,
         pago=None,
         edades=columns[COLUMN_EDAD].text,
-        programa=columns[COLUMN_PROGRAMA],
+        programa=columns[COLUMN_PROGRAMA].text,
     )
 
 
