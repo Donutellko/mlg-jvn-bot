@@ -2,6 +2,9 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from commands import command_help
+
+MESSAGE_LENGTH_LIMIT = 4096
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log the error and send a telegram message to notify the developer."""
@@ -13,5 +16,11 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     else:
         chat_id = update.message.chat_id
         message_id = update.message.message_id
-    message = "Error happened: " + str(context.error)
+
+    last_response = context.user_data.get('last_response', None)
+    if len(last_response) > MESSAGE_LENGTH_LIMIT:
+        last_response = (f"MESSAGE TOO LONG !!! {len(last_response)} chars, max admitted {MESSAGE_LENGTH_LIMIT}:\n\n" +
+                         last_response[:500] + "...")
+
+    message = f"Error happened (maybe a response is incorrect /{command_help.DEBUG_LAST_RESPONSE}): " + str(context.error)
     await context.bot.send_message(chat_id=chat_id, reply_to_message_id=message_id, text=message)

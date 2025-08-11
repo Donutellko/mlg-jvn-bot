@@ -69,6 +69,11 @@ def main() -> None:
     application.add_handler(CommandHandler(command_help.COMMAND_START, command_help.help_command))
     application.add_handler(CommandHandler(command_help.COMMAND_HELP, command_help.help_command))
 
+    application.add_handler(CommandHandler(command_help.DEBUG_PERSISTENCE, command_help.persistence_command))
+    application.add_handler(CommandHandler(command_help.DEBUG_PERSISTENCE_CLEAR, command_help.persistence_clear_command))
+    application.add_handler(CommandHandler(command_help.DEBUG_LAST_RESPONSE, command_help.debug_last_response_command))
+
+
     application.add_handler(CommandHandler(command_list.COMMAND_LIST_ALL, command_list.list_all_command))
     application.add_handler(CommandHandler(command_list.COMMAND_LIST_AVAILABLE, command_list.list_available_command))
     application.add_handler(CommandHandler(command_list.COMMAND_LIST_ONCOMING, command_list.list_oncoming_command))

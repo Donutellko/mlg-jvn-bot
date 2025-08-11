@@ -19,7 +19,9 @@ async def force_scheduler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """
     user_id = update.effective_user.id
     new_appearances = await job_check_updates(context, user_id)
-    await update.message.reply_text(f"new_appearances={new_appearances}", disable_web_page_preview=True)
+    reply_text = f"new_appearances={new_appearances}"
+    context.user_data["last_response"] = reply_text
+    await update.message.reply_text(reply_text, disable_web_page_preview=True)
 
 
 async def handle_scheduled_subscription(context: ContextTypes.DEFAULT_TYPE) -> None:

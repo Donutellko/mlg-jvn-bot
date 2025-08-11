@@ -18,6 +18,7 @@ async def list_all_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     activities_text = '\n\n'.join([str(a) for a in activities])
     reply_text = f"Actividades: \n{activities_text}\n\n{get_gestion_link()}"
 
+    context.user_data["last_response"] = reply_text
     await update.message.reply_text(text=reply_text,
                                     parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
@@ -29,6 +30,7 @@ async def list_available_command(update: Update, context: ContextTypes.DEFAULT_T
     activities_text = '\n\n'.join([str(a) for a in activities])
     reply_text = f"Actividades con plazas: \n{activities_text}\n\n{get_gestion_link()}"
 
+    context.user_data["last_response"] = reply_text
     await update.message.reply_text(text=reply_text,
                                     parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
@@ -63,16 +65,17 @@ async def list_oncoming_command(update: Update, context: ContextTypes.DEFAULT_TY
             suffix = "\n\n*Mensaje truncado, demasiadas actividades\\."
             reply_text = reply_text[:MESSAGE_LENGTH_LIMIT - len(suffix) - 1] + suffix
 
+        context.user_data["last_response"] = reply_text
         await update.message.reply_text(text=reply_text,
                                         parse_mode=ParseMode.MARKDOWN_V2, disable_web_page_preview=True)
 
 
 def get_gestion_link() -> str:
-    return get_markdown_link(escape_markdown("> Gestion <"), gestion_client.URL_OCCUPATION)
+    return get_markdown_link("\\> Gestion \\<", gestion_client.URL_OCCUPATION)
 
 
 def get_oncoming_link() -> str:
-    return get_markdown_link(escape_markdown("> Listado <"), gestion_client.URL_ONCOMING)
+    return get_markdown_link("\\> Listado \\<", gestion_client.URL_ONCOMING)
 
 
 def get_markdown_link(text: str, url: str) -> str:
