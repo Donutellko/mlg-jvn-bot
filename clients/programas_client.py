@@ -3,6 +3,7 @@ import requests
 from typing import List, Dict, Optional, Any
 import traceback
 from datetime import datetime, date
+import re
 
 from clients.gestion_client_helper import Activity
 
@@ -92,10 +93,70 @@ def is_inscription_date_valid(inscription_date_str: str, current_date: date) -> 
                 start_date_str = date_parts[1].strip().split(' ')[0]  # Extract the date part
                 start_date = datetime.strptime(start_date_str, '%d/%m/%Y').date()
                 return start_date >= current_date
+
+        # Handle format like "Del 1 al 25 de Septiembre" or "Del 1 de Agosto al 02 de Septiembre"
+        elif inscription_date_str:
+            # Pattern for "Del 1 al 25 de Septiembre"
+            pattern1 = r"Del\s+(\d+)\s+al\s+\d+\s+de\s+(\w+)"
+            # Pattern for "Del 1 de Agosto al 02 de Septiembre"
+            pattern2 = r"Del\s+(\d+)\s+de\s+(\w+)\s+al"
+            # Pattern for simple date like "26 de Junio"
+            pattern3 = r"(\d+)\s+de\s+(\w+)"
+
+            match = re.search(pattern1, inscription_date_str)
+            if not match:
+                match = re.search(pattern2, inscription_date_str)
+            if not match:
+                match = re.search(pattern3, inscription_date_str)
+
+            if match:
+                day = int(match.group(1))
+                month_name = match.group(2)
+                month = get_month_number(month_name)
+
+                # Use current year for comparison
+                start_date = date(current_date.year, month, day)
+
+                # If the resulting date is more than 6 months in the past,
+                # it's likely for next year
+                if (current_date - start_date).days > 180:
+                    start_date = date(current_date.year + 1, month, day)
+
+                return start_date >= current_date
+
         return True  # If we can't parse the date, include the activity
-    except Exception:
+    except Exception as e:
         # If there's any error parsing the date, include the activity
+        print(f"Error parsing date '{inscription_date_str}': {str(e)}")
         return True
+
+
+def get_month_number(month_name: str) -> int:
+    """
+    Convert Spanish month name to its number (1-12)
+
+    Args:
+        month_name: Spanish month name
+
+    Returns:
+        Month number (1-12)
+    """
+    month_name = month_name.lower().strip()
+    months = {
+        "enero": 1,
+        "febrero": 2,
+        "marzo": 3,
+        "abril": 4,
+        "mayo": 5,
+        "junio": 6,
+        "julio": 7,
+        "agosto": 8,
+        "septiembre": 9,
+        "octubre": 10,
+        "noviembre": 11,
+        "diciembre": 12
+    }
+    return months.get(month_name, 1)  # Default to January if not found
 
 
 def parse_row(row: Tag) -> Activity:
